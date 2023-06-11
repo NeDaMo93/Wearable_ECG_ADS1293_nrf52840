@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_retry">Retry</string>
+
+    <string name="blinky_IMU_values">IMU</string>
+
+    <string name="blinky_heart_rate">Heart Rate</string>
+    <string name="Show_Device_state">Show device state</string>
+    <string name="blinky_heart_rate_descr">Heart Rate</string>
+    <string name="blinky_on">ON</string>
+    <string name="blinky_off">OFF</string>
+    <string name="Temperatur">Received Temperature Values</string>
+</resources>
