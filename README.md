@@ -1,0 +1,3 @@
+# Wearable_ECG_ADS1293_nrf52840
+Software for a Functional Demonstrator of a Medical Wearable for ECG and Activity Monitoring with Wireless Communication. With ADS1293, nrf52840, LSM6DSO. Includes an Android App and Python GUI.
+# More Information will follow shorty ... 
