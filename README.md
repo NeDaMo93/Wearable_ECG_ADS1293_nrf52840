@@ -23,8 +23,8 @@ The Python-based graphical user interface (GUI) connects the ECG device via Blue
 ![image](https://github.com/NeDaMo93/Wearable_ECG_ADS1293_nrf52840/assets/129444601/5a1ee449-d32c-4730-ab91-6154bb457371)
 
 # LBS Files
-lbs.h and lbs.c must be replaced in your zephyr directory 
-**lbs.h:**
-..\nrf\include\bluetooth\services
-**lbs.c:**
-..\nrf\subsys\bluetooth\services
+lbs.h and lbs.c must be replaced in your zephyr directory <br>
+**lbs.h:**<br>
+..\nrf\include\bluetooth\services<br>
+**lbs.c:**<br>
+..\nrf\subsys\bluetooth\services<br>
