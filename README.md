@@ -22,3 +22,9 @@ The application uses the Android BLE Library to manage its Bluetooth connections
 The Python-based graphical user interface (GUI) connects the ECG device via Bluetooth Low Energy (BLE) and visualizes real-time ECG data. It also displays the patient's activity level, body temperature, heart rate and body posture. The code utilizes PyQt5 for GUI development, Matplotlib for plotting, asyncio for asynchronous tasks, Bleak for BLE communication, and biosppy for ECG signal processing.
 ![image](https://github.com/NeDaMo93/Wearable_ECG_ADS1293_nrf52840/assets/129444601/5a1ee449-d32c-4730-ab91-6154bb457371)
 
+# LBS Files
+lbs.h and lbs.c must be replaced in your zephyr directory 
+**lbs.h:**
+..\nrf\include\bluetooth\services
+**lbs.c:**
+..\nrf\subsys\bluetooth\services
