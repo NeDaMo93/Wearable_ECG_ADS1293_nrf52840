@@ -10,6 +10,7 @@ from qasync import QEventLoop, asyncSlot
 from scipy.signal import find_peaks
 import time
 import biosppy.signals.ecg as ecg
+import random
 
 
 
@@ -29,10 +30,8 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
 
-        # Declare a class variable to hold the sample rate
-        self.tic = 0
-        self.toc = 0
-        self.sample_rate = 100  # Default value
+        self.sample_rate_counter = 0
+
         self.plot_window = 400
         self.ecg_buffer_ch1 = np.zeros(self.plot_window)
         self.ecg_buffer_ch2 = np.zeros(self.plot_window)
@@ -46,35 +45,61 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setCentralWidget(self.centralWidget)
         
         # Set the background color of the central widget to dark grey
-        self.centralWidget.setStyleSheet("background-color: black;")
+        self.centralWidget.setStyleSheet("background-color: white;")
 
         self.layout = QtWidgets.QVBoxLayout(self.centralWidget)
 
         self.figure1 = Figure()
         self.canvas1 = FigureCanvas(self.figure1)
-        self.figure1.set_facecolor('xkcd:black')
+        self.figure1.set_facecolor('xkcd:white')
         self.layout.addWidget(self.canvas1)
         self.axes1 = self.figure1.add_subplot(111)
         self.axes1.set_ylabel("ECG-Channel 1")
-        self.axes1.set_facecolor('xkcd:dark grey')
+        self.axes1.set_facecolor('xkcd:white')
         self.plot_line1, = self.axes1.plot([], [], 'b-')
-        # self.axes1.xaxis.set_ticklabels([])  # Remove x-axis tick labels initially
-        # self.axes1.xaxis.set_ticks([])  # Remove x-axis ticks initially
+
+        # # Add main grid to the subplot
+        # self.axes1.grid(True, linestyle='-', linewidth=1, alpha=1.0)
+        # self.axes1.set_axisbelow(True)
+        # self.axes1.grid(color='gray', linestyle='-', linewidth=0.5)
+        # self.axes1.set_xticks(range(0, self.plot_window+1, 100))
+        # self.axes1.set_yticks(range(0, self.plot_window+1, 100))
+        # self.axes1.set_xlim(0, self.plot_window)
+        # self.axes1.set_ylim(0, self.plot_window)
+
+        # # Add subgrid to the subplot
+        # self.axes1.grid(True, which='minor', linestyle=':', linewidth=0.5)
+        # self.axes1.set_xticks(range(0, self.plot_window+1, 10), minor=True)
+        # self.axes1.set_yticks(range(0, self.plot_window+1, 10), minor=True)
+        # self.axes1.set_xlim(0, self.plot_window)
+        # self.axes1.set_ylim(0, self.plot_window)
 
         #add space between plots
         self.figure1.subplots_adjust(hspace=0.5)
 
         self.figure2 = Figure()
         self.canvas2 = FigureCanvas(self.figure2)
-        self.figure2.set_facecolor('xkcd:black')
+        self.figure2.set_facecolor('xkcd:white')
         self.layout.addWidget(self.canvas2)
         self.axes2 = self.figure2.add_subplot(111)
-
         self.axes2.set_ylabel("ECG-Channel 2")
-        self.axes2.set_facecolor('xkcd:dark grey')
+        self.axes2.set_facecolor('xkcd:white')
         self.plot_line2, = self.axes2.plot([], [], 'r-')
-        # self.axes2.xaxis.set_ticklabels([])  # Remove x-axis tick labels initially
-        # self.axes2.xaxis.set_ticks([])  # Remove x-axis ticks initially
+        # # Add main grid to the subplot
+        # self.axes2.grid(True, linestyle='-', linewidth=1, alpha=1.0)
+        # self.axes2.set_axisbelow(True)
+        # self.axes2.grid(color='gray', linestyle='-', linewidth=0.5)
+        # self.axes2.set_xticks(range(0, self.plot_window+1, 100))
+        # self.axes2.set_yticks(range(0, self.plot_window+1, 100))
+        # self.axes2.set_xlim(0, self.plot_window)
+        # self.axes2.set_ylim(0, self.plot_window)
+
+        # # Add subgrid to the subplot
+        # self.axes2.grid(True, which='minor', linestyle=':', linewidth=0.5)
+        # self.axes2.set_xticks(range(0, self.plot_window+1, 10), minor=True)
+        # self.axes2.set_yticks(range(0, self.plot_window+1, 10), minor=True)
+        # self.axes2.set_xlim(0, self.plot_window)
+        # self.axes2.set_ylim(0, self.plot_window)
 
         #add space between plots
         self.figure1.subplots_adjust(hspace=0.5)
@@ -82,35 +107,35 @@ class MainWindow(QtWidgets.QMainWindow):
         # Create a label for displaying pulse of chanel 1
         self.pulse_ch1 = QtWidgets.QLabel()
         self.layout.addWidget(self.pulse_ch1, alignment=QtCore.Qt.AlignLeft)  # Set alignment to center
-        self.pulse_ch1.setStyleSheet("background-color: black; color: white;")
+        self.pulse_ch1.setStyleSheet("background-color: white; color: black;")
         self.pulse_ch1.setText(f"Pulse chanel 1: ")
         self.pulse_ch1.setFont(QtGui.QFont("Arial", 12))  # Set font and size
 
         # Create a label for displaying pulse of chanel 2
         self.pulse_ch2 = QtWidgets.QLabel()
         self.layout.addWidget(self.pulse_ch2, alignment=QtCore.Qt.AlignLeft)  # Set alignment to center
-        self.pulse_ch2.setStyleSheet("background-color: black; color: white;")
+        self.pulse_ch2.setStyleSheet("background-color: white; color: black;")
         self.pulse_ch2.setText(f"Pulse chanel 2: ")
         self.pulse_ch2.setFont(QtGui.QFont("Arial", 12))  # Set font and size
 
         # Create a label for displaying activity type
         self.activityLabel = QtWidgets.QLabel()
         self.layout.addWidget(self.activityLabel, alignment=QtCore.Qt.AlignLeft)  # Set alignment to center
-        self.activityLabel.setStyleSheet("background-color: black; color: white;")
+        self.activityLabel.setStyleSheet("background-color: white; color: black;")
         self.activityLabel.setText(f"Activity-Type: ")
         self.activityLabel.setFont(QtGui.QFont("Arial", 12))  # Set font and size
 
         # Create labels for displaying IMU values
         self.tempLabel = QtWidgets.QLabel()
         self.layout.addWidget(self.tempLabel, alignment=QtCore.Qt.AlignLeft)  # Align label text to center
-        self.tempLabel.setStyleSheet("background-color: black; color: white;")
+        self.tempLabel.setStyleSheet("background-color: white; color: black;")
         self.tempLabel.setFont(QtGui.QFont("Arial", 12))  # Set font and size
         self.tempLabel.setText(f"Body-Temperature: ")
         self.layout.addWidget(self.tempLabel)  
 
         self.posLabel = QtWidgets.QLabel()
         self.layout.addWidget(self.posLabel, alignment=QtCore.Qt.AlignLeft)  # Align label text to right
-        self.posLabel.setStyleSheet("background-color: black; color: white;")
+        self.posLabel.setStyleSheet("background-color: white; color: black;")
         self.posLabel.setFont(QtGui.QFont("Arial", 12))  # Set font and size
         self.posLabel.setText(f"Body-Posture: ")
         self.layout.addWidget(self.posLabel)  
@@ -119,29 +144,45 @@ class MainWindow(QtWidgets.QMainWindow):
         self.figure1.subplots_adjust(hspace=0.5)
 
         self.figure3 = Figure()
-        self.figure3.set_facecolor('xkcd:black')
+        self.figure3.set_facecolor('xkcd:white')
         self.canvas3 = FigureCanvas(self.figure3)
         self.layout.addWidget(self.canvas3)
         self.axes3 = self.figure3.add_subplot(111)
         self.axes3.set_xlabel("Sample")
         self.axes3.set_ylabel("Acceleration")
-        self.axes3.set_facecolor('xkcd:dark grey')
+        self.axes3.set_facecolor('xkcd:white')
         self.plot_line3, = self.axes3.plot([], [], 'g-')
+
+        # # Add main grid to the subplot
+        # self.axes3.grid(True, linestyle='-', linewidth=1, alpha=1.0)
+        # self.axes3.set_axisbelow(True)
+        # self.axes3.grid(color='gray', linestyle='-', linewidth=0.5)
+        # self.axes3.set_xticks(range(0, self.plot_window+1, 100))
+        # self.axes3.set_yticks(range(0, self.plot_window+1, 100))
+        # self.axes3.set_xlim(0, self.plot_window)
+        # self.axes3.set_ylim(0, self.plot_window)
+
+        # # Add subgrid to the subplot
+        # self.axes3.grid(True, which='minor', linestyle=':', linewidth=0.5)
+        # self.axes3.set_xticks(range(0, self.plot_window+1, 10), minor=True)
+        # self.axes3.set_yticks(range(0, self.plot_window+1, 10), minor=True)
+        # self.axes3.set_xlim(0, self.plot_window)
+        # self.axes3.set_ylim(0, self.plot_window)
         
         #add space between plots
         self.figure1.subplots_adjust(hspace=0.5)
 
         self.startStopButton = QtWidgets.QPushButton("Connect")
-        self.startStopButton.setStyleSheet("border: 2px solid white; color: white;")  # Add white border
+        self.startStopButton.setStyleSheet("border: 2px solid black; color: black;")  # Add white border
         self.startStopButton.clicked.connect(self.start_stop_button_clicked)
         self.layout.addWidget(self.startStopButton)
         # Change the color of the axes labels
-        self.axes1.xaxis.label.set_color('white')
-        self.axes1.yaxis.label.set_color('white')
-        self.axes2.xaxis.label.set_color('white')
-        self.axes2.yaxis.label.set_color('white')
-        self.axes3.xaxis.label.set_color('white')
-        self.axes3.yaxis.label.set_color('white')
+        self.axes1.xaxis.label.set_color('black')
+        self.axes1.yaxis.label.set_color('black')
+        self.axes2.xaxis.label.set_color('black')
+        self.axes2.yaxis.label.set_color('black')
+        self.axes3.xaxis.label.set_color('black')
+        self.axes3.yaxis.label.set_color('black')
 
         # Change the color of the axes lines
         self.axes1.spines['bottom'].set_color('grey')
@@ -160,18 +201,18 @@ class MainWindow(QtWidgets.QMainWindow):
         self.axes3.spines['right'].set_color('grey')
 
         # Change the color of the tick labels on the x and y axes
-        self.axes1.tick_params(axis='x', colors='white')
-        self.axes1.tick_params(axis='y', colors='white')
+        self.axes1.tick_params(axis='x', colors='black')
+        self.axes1.tick_params(axis='y', colors='black')
 
-        self.axes2.tick_params(axis='x', colors='white')
-        self.axes2.tick_params(axis='y', colors='white')
+        self.axes2.tick_params(axis='x', colors='black')
+        self.axes2.tick_params(axis='y', colors='black')
 
-        self.axes3.tick_params(axis='x', colors='white')
-        self.axes3.tick_params(axis='y', colors='white')
+        self.axes3.tick_params(axis='x', colors='black')
+        self.axes3.tick_params(axis='y', colors='black')
 
 
         self.statusLabel = QtWidgets.QLabel()
-        self.statusLabel.setStyleSheet("background-color: black; color: white;")
+        self.statusLabel.setStyleSheet("background-color: white; color: black;")
         self.statusLabel.setText(f"Bluetooth Status: ")
         self.layout.addWidget(self.statusLabel)
 
@@ -184,7 +225,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.client = None
 
         self.interval = 0
-        self.activity_type = "Resting"
+        self.activity_type = "Unknown"
 
     @asyncSlot()
     async def start_stop_button_clicked(self):
@@ -258,13 +299,13 @@ class MainWindow(QtWidgets.QMainWindow):
                 #print(pulse)
                 
                 if self.activity_type == "Resting" and pulse < 100:
-                    self.pulse_ch1.setStyleSheet("background-color: black; color: white;")
+                    self.pulse_ch1.setStyleSheet("background-color: white; color: black;")
                 elif self.activity_type == "Resting" and pulse < 120:
-                    self.pulse_ch1.setStyleSheet("background-color: black; color: yellow;")
+                    self.pulse_ch1.setStyleSheet("background-color: white; color: yellow;")
                 elif self.activity_type == "Resting" and pulse > 120:
-                    self.pulse_ch1.setStyleSheet("background-color: black; color: red;")
+                    self.pulse_ch1.setStyleSheet("background-color: white; color: red;")
                 else:
-                    self.pulse_ch1.setStyleSheet("background-color: black; color: white;")
+                    self.pulse_ch1.setStyleSheet("background-color: white; color: black;")
                 
                 self.pulse_ch1.setText(f"Pulse channel 1: {round(pulse, 1)} bpm")
                 self.pulse_ch1.setAlignment(QtCore.Qt.AlignCenter)  # Set alignment to center
@@ -274,44 +315,45 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.ecg_buffer2_ch2[0] != 0:
             if self.interval % 125 == 0:
                 pulse2 = self.get_heart_rate(self.ecg_buffer2_ch2)
-                #print(pulse2)
+                print(f"activity_type: {self.activity_type}")
                 
                 if self.activity_type == "Resting" and pulse2 < 100:
-                    self.pulse_ch2.setStyleSheet("background-color: black; color: white;")
+                    self.pulse_ch2.setStyleSheet("background-color: white; color: black;")
                 elif self.activity_type == "Resting" and pulse2 < 120:
-                    self.pulse_ch2.setStyleSheet("background-color: black; color: yellow;")
+                    self.pulse_ch2.setStyleSheet("background-color: white; color: yellow;")
                 elif self.activity_type == "Resting" and pulse2 > 120:
-                    self.pulse_ch2.setStyleSheet("background-color: black; color: red;")
+                    self.pulse_ch2.setStyleSheet("background-color: white; color: red;")
                 else:
-                    self.pulse_ch2.setStyleSheet("background-color: black; color: white;")
+                    self.pulse_ch2.setStyleSheet("background-color: white; color: black;")
                 
 
                 self.pulse_ch2.setText(f"Pulse channel 2: {round(pulse2, 1)} bpm")
                 self.pulse_ch2.setAlignment(QtCore.Qt.AlignCenter)  # Set alignment to center
                 self.interval = 0
+
                 
     
-
     async def notification_handler_2(self, sender, imu_data):
         # Multiply by 2 because of the range of IMU and divide by 10e5 to get the correct value and subtract offset
         imu_values = (2 * np.frombuffer(imu_data, dtype=np.uint32) / 10e5) - 0.25
-        
+
         # Update the imu_buffer with imu_values
         self.imu_buffer[:-len(imu_values)] = self.imu_buffer[4:]  # Shift the buffer to the left, excluding the last four positions
         self.imu_buffer[-len(imu_values):] = imu_values  # Assign the imu_values to the last four positions of the buffer
         
-        activity_type = self.process_IMU_data(self.imu_buffer[-activityLevel_threshold:])
+        self.activity_type = self.process_IMU_data(self.imu_buffer[-activityLevel_threshold:])
         
         # Update the activity label with the current activity type
-        self.activityLabel.setText(f"Activity-Type: {activity_type}")
+        self.activityLabel.setText(f"Activity-Type: {self.activity_type}")
         self.activityLabel.setAlignment(QtCore.Qt.AlignCenter)  # Set alignment to center
+
+        self.sample_rate_counter += 1
     
     async def notification_handler_3(self, sender, TempPos_data):
         TempPos_values = np.frombuffer(TempPos_data, dtype=np.uint16)
         self.tempLabel.setText(f"Body-Temperature: {TempPos_values[0]/100} °C")
         body_position = self.determine_Body_position(TempPos_values[1])
-        self.posLabel.setText(f"Body-Posture: {body_position}")
-
+        self.posLabel.setText(f"Body-Position: {body_position}")
 
     def process_IMU_data(self, IMU_values):
         peaks, _ = find_peaks(IMU_values, height=2*5.6)
@@ -362,24 +404,23 @@ class MainWindow(QtWidgets.QMainWindow):
             self.plot_line1.set_data(x, y1)
             self.axes1.relim()
             self.axes1.autoscale_view()
-            self.axes1.xaxis.set_ticklabels([])  # Remove x-axis tick labels
-            self.axes1.xaxis.set_ticks([])  # Remove x-axis ticks
+
 
             self.plot_line2.set_data(x, y2)
             self.axes2.relim()
             self.axes2.autoscale_view()
-            self.axes2.xaxis.set_ticklabels([])  # Remove x-axis tick labels
-            self.axes2.xaxis.set_ticks([])  # Remove x-axis ticks
+
 
             self.plot_line3.set_data(x, y3)
             self.axes3.relim()
             self.axes3.autoscale_view()
             
-            self.sample_index += self.plot_window
             self.canvas1.draw()
             self.canvas2.draw()
             self.canvas3.draw()
-
+            #print(f"Samples per refresh: {self.sample_rate_counter}")
+            #print(f"Incomming Data Frequncy: {self.sample_rate_counter/0.1}")            
+            self.sample_rate_counter = 0
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])
