@@ -1,0 +1,58 @@
+(kicad_sch (version 20230121) (generator eeschema)
+
+  (uuid 98df5d57-0d45-4458-9a17-6779da60219b)
+
+  (paper "A4")
+
+  (title_block
+    (title "AFE ADS1293")
+    (date "2023-03-31")
+    (rev "01")
+    (company "HS Pforzheim")
+  )
+
+  (lib_symbols
+  )
+
+
+  (sheet (at 21.59 29.21) (size 152.4 69.85) (fields_autoplaced)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 0 0 0 0.0000))
+    (uuid 565a1aa9-10ad-4447-b46f-a52a6024cbc3)
+    (property "Sheetname" "Power Supply" (at 21.59 28.4984 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom))
+    )
+    (property "Sheetfile" "Power Supply.kicad_sch" (at 21.59 99.6446 0)
+      (effects (font (size 1.27 1.27)) (justify left top))
+    )
+    (property "Field2" "" (at 21.59 29.21 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (instances
+      (project "AFE_03"
+        (path "/98df5d57-0d45-4458-9a17-6779da60219b" (page "3"))
+      )
+    )
+  )
+
+  (sheet (at 20.32 119.38) (size 152.4 72.39) (fields_autoplaced)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 0 0 0 0.0000))
+    (uuid 89b2552b-79a1-4228-bdf6-e7f6dc87d3e0)
+    (property "Sheetname" "Analog Front End ADS1293" (at 20.32 118.6684 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom))
+    )
+    (property "Sheetfile" "ADS1293.kicad_sch" (at 20.32 192.3546 0)
+      (effects (font (size 1.27 1.27)) (justify left top))
+    )
+    (instances
+      (project "AFE_03"
+        (path "/98df5d57-0d45-4458-9a17-6779da60219b" (page "2"))
+      )
+    )
+  )
+
+  (sheet_instances
+    (path "/" (page "1"))
+  )
+)
