@@ -30,6 +30,7 @@
 #include <zephyr/logging/log.h>
 #include <zephyr/drivers/spi.h>  // provides access to SPI driver features
 #include <zephyr/drivers/gpio.h>  // provides access to GPIO driver features
+#include <hal/nrf_gpio.h>
 
 /************************************** HEADER FILES INCLUDES ***********************************************/
 #include "bluetooth_connection.h"
@@ -41,6 +42,7 @@
 #include"imu_trigger.h"
 #include"Queue.h"
 #include"temperatureSens.h"
+#include "batteryManagement.h"
 
 /************************************** THREADS SEMAPHORES ***********************************/
 //Define sd-card semaphore
@@ -84,6 +86,8 @@ volatile bool ecg_data_sent = false;
 K_MUTEX_DEFINE(ble_data_mutex);
 LOG_MODULE_REGISTER(main);
 
+// power saving for battery temp
+#define POWER NRF_GPIO_PIN_MAP(0,28)
 /************************************** STATIC VARIABLES **************************************/
 static int lsdir(const char *path);
 static FATFS fat_fs;
@@ -319,13 +323,16 @@ void imu_data_acquisition_thread(void *unused1, void *unused2, void *unused3) {
     }
 }
 
-/************************************** IMU THREAD ************************************************/
+/************************************** TEMP THREAD ************************************************/
 void temp_data_acquisition_thread()
 {
 	while(1)
 	{
 		k_sem_take(&temp_sem, K_FOREVER); // the semaphore count goes down to 0
 		body_temperature = get_bodyTemperature();
+		nrf_gpio_pin_set(POWER);
+		get_battery_info();
+		nrf_gpio_pin_clear(POWER);
 	}
 
 }
@@ -498,6 +505,11 @@ void main(void)
 	/************************************** GPIO INIT ************************************************/
 	//Initialize GPIO Interrupt pin for ecg data
 	GPIOinterrupt_init();
+
+	/************************************** Battery Management Setup ******************************************/
+	// setup battery management
+	battery_management_initialization();
+	nrf_gpio_cfg_output(POWER);
 
 	/************************************** SD CARD MOUNTING ******************************************/
 	//SD Card mounting
